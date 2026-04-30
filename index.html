@@ -1,8 +1,177 @@
-{
-    nombre: "Nombre del negocio",
-    descripcion: "Descripción breve",
-    codigo: "NGE-XXX",
-    url: "https://sitio.pages.dev",
-    categoria: "🚗 Categoría",
-    logo: "https://sitio.pages.dev/portada.jpg"
-},
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Catálogo NGE | Tarjetas Digitales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:linear-gradient(135deg,#0b1c3a,#1e3a5f);font-family:'Segoe UI',sans-serif;color:white}
+        .flipbook{max-width:900px;margin:0 auto;padding:20px}
+        .card-page{background:rgba(17,43,79,0.95);backdrop-filter:blur(15px);border-radius:30px;padding:25px;border:1px solid #fbbf24;box-shadow:0 20px 35px rgba(0,0,0,0.4);margin-bottom:20px;transition:all 0.3s}
+        .card-page:hover{transform:scale(1.01);border-color:#f59e0b}
+        .btn-flip{background:#fbbf24;color:#0b1c3a;border:none;padding:12px 25px;border-radius:60px;font-weight:bold;cursor:pointer;transition:0.2s;margin:0 5px}
+        .btn-flip:hover{transform:scale(1.05);background:#f59e0b}
+        .btn-flip:disabled{opacity:0.5;cursor:not-allowed}
+        .qr-mini{width:70px;height:70px;border-radius:15px;background:white;padding:5px;margin:10px auto}
+        .nav-buttons{text-align:center;margin:30px 0}
+        .counter{text-align:center;margin-top:15px;font-size:0.9rem;color:#fbbf24}
+        .categoria-badge{background:#fbbf24;color:#0b1c3a;border-radius:30px;padding:5px 12px;font-size:0.7rem;font-weight:bold;display:inline-block;margin-bottom:10px}
+        @media(max-width:600px){.card-page{padding:18px}.qr-mini{width:60px;height:60px}}
+    </style>
+</head>
+<body>
+
+<div class="flipbook">
+    <h1 class="text-3xl md:text-4xl font-bold text-center text-amber-400 mb-2">📇 CATÁLOGO NGE</h1>
+    <p class="text-center text-gray-300 mb-8">Tarjetas Digitales · Nueva Generación Emprendedora</p>
+
+    <div id="flipbookContainer">
+        <div class="text-center py-10">Cargando catálogo...</div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="btn-flip" id="btnPrev" disabled>◀ ANTERIOR</button>
+        <button class="btn-flip" id="btnNext">SIGUIENTE ▶</button>
+    </div>
+    <div class="counter" id="pageCounter">Página 1 de 0</div>
+
+    <div class="text-center mt-10 pt-6 border-t border-amber-400/30 text-sm text-gray-400">
+        <p>© 2026 NGE - Nueva Generación Emprendedora · Guía Digital Cúcuta</p>
+        <p class="mt-1">📱 Todos los códigos QR generan comisiones para los afiliados</p>
+    </div>
+</div>
+
+<script>
+    const tarjetas = [
+        {
+            nombre: "HIDROCOOL",
+            descripcion: "Venta y reparación hidráulica · Sellos · Aceites · Maquinaria pesada",
+            codigo: "NGE-203",
+            url: "https://hidrocool.pages.dev",
+            categoria: "🔧 Hidráulica",
+            logo: "https://hidrocool.pages.dev/portada.jpg"
+        },
+        {
+            nombre: "MAQUINAS VENEZUELA",
+            descripcion: "Compra y venta de máquinas · Servicio técnico · Asesoría industrial",
+            codigo: "NGE-204",
+            url: "https://maquinas-venezuela.pages.dev",
+            categoria: "🏭 Maquinaria",
+            logo: "https://maquinas-venezuela.pages.dev/portada.jpg"
+        },
+        {
+            nombre: "BETO TURBOS",
+            descripcion: "Venta y reparación de turbos · Revisión gratis · Alta calidad",
+            codigo: "NGE-205",
+            url: "https://beto-turbos.pages.dev",
+            categoria: "🚗 Turbos",
+            logo: "https://beto-turbos.pages.dev/portada.jpg"
+        },
+        {
+            nombre: "POLARIZADOS JULIO",
+            descripcion: "Polarizados para autos · Nano cerámico · Servicio a domicilio",
+            codigo: "NGE202",
+            url: "https://polarizados-julio.pages.dev",
+            categoria: "🚘 Polarizados",
+            logo: "https://polarizados-julio.pages.dev/portada.jpg"
+        },
+        {
+            nombre: "AUTODIAGNÓSTICO CJI",
+            descripcion: "Escáner · Llaves con microchip · Cerrajería automotriz",
+            codigo: "NGE-204",
+            url: "https://autodiagnostico-ferreteria-cji.pages.dev",
+            categoria: "🔐 Cerrajería",
+            logo: "https://autodiagnostico-ferreteria-cji.pages.dev/portada.jpg"
+        },
+        {
+            nombre: "TALLER ELÉCTRICO GUSTAVO ROJAS",
+            descripcion: "Arranques y alternadores · Diagnóstico eléctrico",
+            codigo: "NGE-206",
+            url: "https://electricidad-gustavo-rojas.pages.dev",
+            categoria: "⚡ Electricidad",
+            logo: "https://electricidad-gustavo-rojas.pages.dev/portada.jpg"
+        }
+    ];
+
+    let paginaActual = 0;
+    const tarjetasPorPagina = 1;
+    const totalPaginas = Math.ceil(tarjetas.length / tarjetasPorPagina);
+
+    const container = document.getElementById('flipbookContainer');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const pageCounter = document.getElementById('pageCounter');
+
+    function copiarEnlace(url) {
+        navigator.clipboard.writeText(url);
+        alert('✅ Enlace copiado al portapapeles');
+    }
+
+    function renderizarPagina() {
+        const inicio = paginaActual * tarjetasPorPagina;
+        const fin = inicio + tarjetasPorPagina;
+        const tarjetasPagina = tarjetas.slice(inicio, fin);
+
+        if (tarjetasPagina.length === 0) {
+            container.innerHTML = '<div class="text-center py-10">No hay tarjetas disponibles</div>';
+            return;
+        }
+
+        let html = '';
+        tarjetasPagina.forEach(t => {
+            html += `
+                <div class="card-page">
+                    <div class="flex justify-between items-start flex-wrap gap-3 mb-3">
+                        <span class="categoria-badge">${t.categoria}</span>
+                        <span class="text-xs bg-black/40 px-3 py-1 rounded-full">Código: ${t.codigo}</span>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-xl overflow-hidden border-2 border-amber-400 bg-black/50">
+                                <img src="${t.logo}" alt="${t.nombre}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x200/0b1c3a/fbbf24?text=NGE'">
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 text-center md:text-left">
+                            <h2 class="text-2xl font-bold text-amber-400">${t.nombre}</h2>
+                            <p class="text-sm text-gray-300 mt-2">${t.descripcion}</p>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                                <a href="${t.url}" target="_blank" class="bg-amber-400 text-black py-2 px-4 rounded-full text-sm font-bold hover:scale-105 transition inline-block">🔗 Ver Tarjeta</a>
+                                <button onclick="copiarEnlace('${t.url}')" class="bg-gray-700 py-2 px-4 rounded-full text-sm font-bold hover:bg-gray-600 transition">📋 Copiar enlace</button>
+                            </div>
+                            <div class="qr-mini mx-auto md:mx-0">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(t.url)}" alt="QR ${t.nombre}" class="w-full h-full">
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3">🔑 Promociona este código: <strong class="text-amber-400">${t.codigo}</strong> · Gana comisiones</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        pageCounter.innerText = `Página ${paginaActual + 1} de ${totalPaginas}`;
+        
+        btnPrev.disabled = (paginaActual === 0);
+        btnNext.disabled = (paginaActual === totalPaginas - 1);
+    }
+
+    btnPrev.addEventListener('click', () => {
+        if (paginaActual > 0) {
+            paginaActual--;
+            renderizarPagina();
+        }
+    });
+
+    btnNext.addEventListener('click', () => {
+        if (paginaActual < totalPaginas - 1) {
+            paginaActual++;
+            renderizarPagina();
+        }
+    });
+
+    renderizarPagina();
+</script>
+</body>
+</html>
